@@ -1,346 +1,283 @@
-<!--
-Charity Connector Hub
-Single-file responsive website (index.html)
-Designed as an impressive, clean, professional landing + mini dashboard mockup.
-Save this file exactly as: index.html
-Upload to your GitHub repo root and publish via GitHub Pages (Settings → Pages → Branch: main, Folder: /root).
-
-Features contained here (interactive demo):
-- Hero with CTA
-- Smart project search & filters
-- Donor flow (mock checkout modal)
-- NGO profile cards with trust badges and impact meters
-- Volunteer sign-up form
-- Admin dashboard preview with analytics tiles
-- Accessibility considerations and mobile-first responsive layout
-
-This is a static frontend demo — replace APIs with real endpoints in production.
--->
-
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Charity Connector Hub — Connect donors, volunteers & NGOs</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <meta name="description" content="Charity Connector Hub — match donors, volunteers and NGOs with transparent impact tracking.">
-  <style>
-    :root{
-      --bg:#0f1724; --card:#0b1220; --muted:#9aa5b1; --accent1:#6ee7b7; --accent2:#60a5fa; --glass: rgba(255,255,255,0.04);
-      --radius:14px; --maxw:1100px; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071026 0%, #071a2a 60%);color:#e6eef6}
-    a{color:inherit}
-    .wrap{max-width:var(--maxw);margin:28px auto;padding:20px}
-
-    /* header */
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:#04263b;font-weight:800;font-size:18px}
-    .brand h1{margin:0;font-size:18px}
-    .nav{display:flex;gap:12px;align-items:center}
-    .btn{background:var(--glass);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);cursor:pointer}
-    .btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#04263b;font-weight:700;border:none}
-
-    /* hero */
-    .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;margin-top:20px;align-items:center}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:22px;border-radius:var(--radius);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.03)}
-    .headline{font-size:28px;line-height:1.05;margin:0 0 12px}
-    .sub{color:var(--muted);margin:0 0 18px}
-    .feature-list{display:flex;flex-wrap:wrap;gap:10px}
-    .chip{background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;font-size:13px}
-
-    /* search / cards */
-    .search{display:flex;gap:8px;margin-top:12px}
-    .search input{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
-    .filters{display:flex;gap:8px;margin-top:16px}
-
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
-    .ngo{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border:1px solid rgba(255,255,255,0.03)}
-    .ngo h3{margin:0 0 6px}
-    .badge{display:inline-block;padding:6px 8px;border-radius:8px;font-size:12px;background:rgba(255,255,255,0.03);color:var(--accent1)}
-    .progress{height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden;margin-top:8px}
-    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent1))}
-
-    /* dashboard mock */
-    .dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
-    .tile{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border:1px solid rgba(255,255,255,0.03)}
-    .metrics{display:flex;gap:12px;align-items:center}
-
-    /* footer */
-    footer{margin-top:28px;padding:14px;text-align:center;color:var(--muted);font-size:13px}
-
-    /* modal */
-    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);background:rgba(2,6,23,0.6);opacity:0;pointer-events:none;transition:opacity .18s}
-    .modal.open{opacity:1;pointer-events:auto}
-    .modal-inner{width:420px;background:#021022;padding:18px;border-radius:14px;border:1px solid rgba(255,255,255,0.04)}
-
-    /* responsive */
-    @media (max-width:1000px){
-      .hero{grid-template-columns:1fr}
-      .grid{grid-template-columns:repeat(2,1fr)}
-      .dashboard{grid-template-columns:1fr}
-    }
-    @media (max-width:640px){
-      .wrap{padding:12px}
-      .grid{grid-template-columns:1fr}
-      .logo{width:44px;height:44px}
-      .headline{font-size:22px}
-    }
-
-    /* small interactions */
-    .clickable{cursor:pointer}
-    .muted{color:var(--muted)}
-    input[type=range]{width:100%}
-    /* Micro-interactions */
-    .btn, .chip, .ngo, .tile {transition: transform .2s ease, background .2s ease, box-shadow .2s ease;}
-    .btn:hover {transform: translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.3);}
-    .chip:hover {transform: scale(1.05);background:rgba(255,255,255,0.08);}
-    .ngo:hover {transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,0.4);} 
-    .tile:hover {transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,0.4);} 
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Retro Farm — Single File</title>
+<style>
+  html,body{height:100%;margin:0;background:#111;color:#ddd;font-family:monospace}
+  .wrap{display:flex;gap:16px;padding:12px}
+  canvas{image-rendering:pixelated;border:6px solid #222;background:#88c}
+  .ui{width:260px}
+  h1{font-size:18px;margin:0 0 8px}
+  p{margin:6px 0}
+  .stat{background:#151515;padding:8px;border-radius:6px}
+  button{appearance:none;border:0;padding:8px;background:#2b2b2b;color:#ddd;border-radius:6px;cursor:pointer}
+  .hint{font-size:12px;color:#aaa}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">C</div>
-        <div>
-          <h1>Charity Connector Hub</h1>
-          <div class="muted" style="font-size:13px">Match donors, volunteers & NGOs — transparent impact</div>
-        </div>
-      </div>
-      <nav class="nav">
-        <button class="btn">Sign in</button>
-        <button id="getStarted" class="btn primary">Get Started</button>
-      </nav>
-    </header>
-
-    <main>
-      <section class="hero">
-        <div class="card">
-          <h2 class="headline">Connect your cause to the people who care — smarter, faster, more transparent.</h2>
-          <p class="sub">A platform to discover verified projects, donate, volunteer and track real impact — built for trust and scale.</p>
-
-          <div class="search">
-            <input id="q" placeholder="Search projects, causes or locations — e.g. clean water, Mumbai" aria-label="Search projects">
-            <button id="searchBtn" class="btn">Search</button>
-          </div>
-
-          <div class="filters" role="list">
-            <div class="chip">High Impact</div>
-            <div class="chip">Verified NGOs</div>
-            <div class="chip">Near me</div>
-            <div class="chip">Low fee</div>
-          </div>
-
-          <div class="feature-list" style="margin-top:16px">
-            <div class="chip">Smart match</div>
-            <div class="chip">Real-time impact feed</div>
-            <div class="chip">Micro-donations</div>
-            <div class="chip">Volunteer scheduling</div>
-          </div>
-
-          <div style="margin-top:18px;display:flex;gap:10px">
-            <button id="donateNow" class="btn primary">Donate Now</button>
-            <button id="volunteer" class="btn">Volunteer</button>
-          </div>
-
-        </div>
-
-        <aside class="card">
-          <h3 style="margin-top:0">Quick Match</h3>
-          <div class="muted" style="font-size:13px">We found projects you might like</div>
-          <div style="margin-top:12px">
-            <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
-              <div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#04263b">WC</div>
-              <div>
-                <div style="font-weight:700">Clean Water Initiative</div>
-                <div class="muted" style="font-size:13px">Nairobi — 86% funded</div>
-                <div class="progress" aria-hidden><i style="width:86%"></i></div>
-              </div>
-            </div>
-
-            <div style="display:flex;gap:10px;align-items:center">
-              <div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(90deg,#fbbf24,#fb7185);display:flex;align-items:center;justify-content:center;font-weight:700;color:#04263b">ED</div>
-              <div>
-                <div style="font-weight:700">Education Drive</div>
-                <div class="muted" style="font-size:13px">Rural Peru — 41% funded</div>
-                <div class="progress" aria-hidden><i style="width:41%"></i></div>
-              </div>
-            </div>
-
-          </div>
-        </aside>
-      </section>
-
-      <!-- NGO Grid -->
-      <section style="margin-top:22px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h3 style="margin:0">Featured Projects</h3>
-          <div class="muted">Showing best matches for you</div>
-        </div>
-
-        <div class="grid" id="ngoGrid" aria-live="polite">
-          <!-- cards injected by JS -->
-        </div>
-
-        <!-- dashboard preview -->
-        <div class="dashboard" style="margin-top:18px">
-          <div class="tile">
-            <h4>Platform Metrics</h4>
-            <div class="metrics" style="margin-top:12px">
-              <div style="flex:1">
-                <div style="font-size:28px;font-weight:700">₹4.2M</div>
-                <div class="muted">Total donations</div>
-              </div>
-              <div style="flex:1">
-                <div style="font-size:28px;font-weight:700">1,284</div>
-                <div class="muted">Active volunteers</div>
-              </div>
-            </div>
-          </div>
-          <div class="tile">
-            <h4>Recent Activity</h4>
-            <ul style="margin:10px 0 0;padding-left:16px;color:var(--muted)">
-              <li>₹2,000 donated to Clean Water Initiative</li>
-              <li>Volunteer shift booked — Education Drive</li>
-              <li>NGO verified — Rural Health Network</li>
-            </ul>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- modal / donor flow -->
-      <div id="donorModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="modal-inner">
-          <h3 style="margin-top:0">Donate — Quick Checkout</h3>
-          <div class="muted" style="font-size:13px">Secure demo payment (no real payment processed).</div>
-          <form id="donForm" style="margin-top:12px">
-            <label class="muted">Amount (₹)</label>
-            <input id="donAmt" type="number" min="50" value="500" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:6px">
-            <label class="muted" style="margin-top:8px;display:block">Message (optional)</label>
-            <textarea id="donMsg" rows="3" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:6px"></textarea>
-            <div style="display:flex;gap:8px;margin-top:12px">
-              <button type="button" id="confirmDon" class="btn primary">Confirm</button>
-              <button type="button" id="closeDon" class="btn">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-    </main>
-
-    <footer>
-      Built with ❤️ — Charity Connector Hub • Demo UI • For production: integrate payments, verification & APIs.
-    </footer>
+<div class="wrap">
+  <canvas id="game" width="512" height="384"></canvas>
+  <div class="ui">
+    <h1>Retro Farm</h1>
+    <div class="stat">
+      <div>Day: <span id="day">1</span></div>
+      <div>Money: $<span id="money">0</span></div>
+      <div>Harvested: <span id="harvested">0</span></div>
+      <div>Seeds: <span id="seeds">10</span></div>
+    </div>
+    <p class="hint">Controls: arrow keys to move, <b>Space</b> to plant, <b>W</b> to water, <b>H</b> to harvest, <b>S</b> to sell all, <b>P</b> pause</p>
+    <p><button id="reset">Reset Farm</button></p>
+    <p class="hint">A retro-styled mini farming game: prepare soil, plant seeds, water, wait for crops to grow, harvest and sell.</p>
   </div>
+</div>
+<script>
+// Retro Farm - single file
+// Grid-based pixel farm. Small, self-contained, and easy to extend.
 
-  <script>
-    // Mock NGO data
-    const NGOS = [
-      {id:1,name:'Clean Water Initiative',location:'Nairobi',impact:86,desc:'Build community water filters and train local technicians.'},
-      {id:2,name:'Education Drive',location:'Peru',impact:41,desc:'Scholarships and teacher training for rural schools.'},
-      {id:3,name:'Rural Health Network',location:'Philippines',impact:67,desc:'Mobile health camps and maternal care.'},
-      {id:4,name:'Green Seed Project',location:'Brazil',impact:22,desc:'Afforestation and sustainable farming support.'},
-      {id:5,name:'Youth Skill Labs',location:'Berlin',impact:49,desc:'Vocational training and placements for youth.'},
-      {id:6,name:'Meals For Many',location:'Toronto',impact:93,desc:'Community kitchens and food distribution.'}
-    ];
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const SCALE = 4;           // pixel scale for retro look
+const TILE_W = 16;         // tiles horizontally
+const TILE_H = 12;         // tiles vertically
+const TILE_SIZE = 16;      // logical pixels per tile
+canvas.width = TILE_W * TILE_SIZE * SCALE;
+canvas.height = TILE_H * TILE_SIZE * SCALE;
+ctx.scale(SCALE, SCALE);
+ctx.imageSmoothingEnabled = false;
 
-    const ngoGrid = document.getElementById('ngoGrid');
-    function renderGrid(items){
-      ngoGrid.innerHTML = '';
-      items.forEach(n => {
-        const div = document.createElement('div'); div.className='ngo';
-        div.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:start">
-            <div>
-              <h3>${n.name}</h3>
-              <div class="muted" style="font-size:13px">${n.location}</div>
-            </div>
-            <div>
-              <div class="badge">Verified</div>
-            </div>
-          </div>
-          <p class="muted" style="margin-top:8px;font-size:14px">${n.desc}</p>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-            <div style="width:60%">
-              <div class="progress" aria-hidden><i style="width:${n.impact}%"></i></div>
-              <div class="muted" style="font-size:12px;margin-top:6px">${n.impact}% funded</div>
-            </div>
-            <div style="text-align:right">
-              <button class="btn" onclick="openDonate(${n.id})">Donate</button>
-              <button class="btn" style="margin-left:6px" onclick="openProfile(${n.id})">View</button>
-            </div>
-          </div>
-        `;
-        ngoGrid.appendChild(div);
-      });
+// Game state
+let day = 1;
+let money = 0;
+let harvested = 0;
+let seeds = 10;
+let paused = false;
+
+const tileTypes = {
+  grass: 0,
+  soil: 1
+};
+
+// Each tile holds: type, seed (null or species), growth (0..max), watered (bool)
+const grid = [];
+for (let y=0;y<TILE_H;y++){
+  const row = [];
+  for (let x=0;x<TILE_W;x++){
+    // make a central plottable area
+    const isSoil = (y>2 && y<TILE_H-1 && x>1 && x<TILE_W-2);
+    row.push({type: isSoil?tileTypes.soil:tileTypes.grass, seed:null, growth:0, watered:false});
+  }
+  grid.push(row);
+}
+
+// Simple crop definitions
+const CROPS = {
+  carrot: {name:'Carrot', growTime:3, sell:5},
+  potato: {name:'Potato', growTime:5, sell:9}
+};
+const defaultCrop = 'carrot';
+
+// Player
+const player = {x: Math.floor(TILE_W/2), y: Math.floor(TILE_H/2)};
+
+// Timing
+let ticks = 0;
+const TICKS_PER_DAY = 10; // advance growth every N ticks
+
+// UI elements
+const dayEl = document.getElementById('day');
+const moneyEl = document.getElementById('money');
+const harvestedEl = document.getElementById('harvested');
+const seedsEl = document.getElementById('seeds');
+const resetBtn = document.getElementById('reset');
+resetBtn.addEventListener('click', resetGame);
+
+function resetGame(){
+  day = 1; money = 0; harvested = 0; seeds = 10; paused=false;
+  for (let y=0;y<TILE_H;y++) for (let x=0;x<TILE_W;x++) grid[y][x].seed=null, grid[y][x].growth=0, grid[y][x].watered=false;
+  player.x = Math.floor(TILE_W/2); player.y = Math.floor(TILE_H/2);
+}
+
+// Input
+const keys = {};
+window.addEventListener('keydown', e=>{ keys[e.key.toLowerCase()] = true; handleKey(e); e.preventDefault(); });
+window.addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
+
+function handleKey(e){
+  const k = e.key.toLowerCase();
+  if (k === 'p') paused = !paused;
+  if (paused) return;
+  if (k === ' '){ // plant
+    plantSeed();
+  } else if (k === 'w'){
+    waterTile();
+  } else if (k === 'h'){
+    harvest();
+  } else if (k === 's'){
+    sellAll();
+  }
+}
+
+function plantSeed(){
+  const t = grid[player.y][player.x];
+  if (t.type !== tileTypes.soil) return; // only on soil
+  if (t.seed) return; // already planted
+  if (seeds <= 0) return;
+  t.seed = defaultCrop;
+  t.growth = 0;
+  t.watered = false;
+  seeds -= 1;
+}
+function waterTile(){
+  const t = grid[player.y][player.x];
+  if (t.type !== tileTypes.soil) return;
+  if (!t.seed) { t.watered = true; return; } // pre-water
+  t.watered = true;
+}
+function harvest(){
+  const t = grid[player.y][player.x];
+  if (!t.seed) return;
+  const crop = CROPS[t.seed];
+  if (t.growth >= crop.growTime){
+    money += crop.sell;
+    harvested += 1;
+    t.seed = null; t.growth = 0; t.watered = false;
+  }
+}
+function sellAll(){
+  // sell based on money from harvested crops already collected (this is extra: let's give buyer price for mock inventory)
+  // In this simple demo we just get a small bonus per harvested
+  const bonus = Math.floor(harvested * 0.5);
+  money += bonus;
+}
+
+// Game logic tick
+function gameTick(){
+  if (paused) return;
+  ticks++;
+  // player movement by arrow keys
+  if (keys['arrowleft'] || keys['a']) player.x = Math.max(0, player.x-1);
+  if (keys['arrowright'] || keys['d']) player.x = Math.min(TILE_W-1, player.x+1);
+  if (keys['arrowup'] || keys['w']) player.y = Math.max(0, player.y-1);
+  if (keys['arrowdown'] || keys['s']) player.y = Math.min(TILE_H-1, player.y+1);
+
+  if (ticks % TICKS_PER_DAY === 0){
+    // new day: advance crop growth if watered
+    day++;
+    for (let y=0;y<TILE_H;y++){
+      for (let x=0;x<TILE_W;x++){
+        const t = grid[y][x];
+        if (t.seed){
+          if (t.watered){
+            t.growth = Math.min(CROPS[t.seed].growTime, t.growth+1);
+          } else {
+            // if not watered, slight chance to lose growth
+            if (Math.random() < 0.15 && t.growth>0) t.growth = Math.max(0, t.growth-1);
+          }
+          t.watered = false; // reset watering each day
+        }
+      }
     }
+  }
+}
 
-    renderGrid(NGOS);
+// Rendering
+function draw(){
+  // clear
+  ctx.fillStyle = '#88c';
+  ctx.fillRect(0,0,canvas.width/SCALE,canvas.height/SCALE);
 
-    // Search
-    document.getElementById('searchBtn').addEventListener('click', ()=>{
-      const q = document.getElementById('q').value.trim().toLowerCase();
-      if(!q) return renderGrid(NGOS);
-      const res = NGOS.filter(n => (n.name+ ' ' + n.desc + ' ' + n.location).toLowerCase().includes(q));
-      renderGrid(res);
-    });
+  // draw grid
+  for (let y=0;y<TILE_H;y++){
+    for (let x=0;x<TILE_W;x++){
+      const t = grid[y][x];
+      const px = x*TILE_SIZE, py = y*TILE_SIZE;
+      // base
+      if (t.type === tileTypes.grass){
+        rect(px,py, TILE_SIZE, TILE_SIZE, '#2b7');
+        // grass pattern
+        rect(px+1,py+1,4,2,'#167');
+      } else {
+        rect(px,py, TILE_SIZE, TILE_SIZE, '#7a4');
+        // soil texture
+        for (let i=0;i<3;i++) rect(px+2+i*4, py+3+i*2, 2,2, '#5b3');
+      }
 
-    // Modal logic
-    const donorModal = document.getElementById('donorModal');
-    function openDonate(id){
-      const ngo = NGOS.find(x=>x.id===id);
-      donorModal.querySelector('h3').textContent = 'Donate — ' + ngo.name;
-      donorModal.classList.add('open'); donorModal.setAttribute('aria-hidden','false');
+      // if soil and watered show overlay
+      if (t.type === tileTypes.soil && t.watered){
+        rect(px+2,py+2, TILE_SIZE-4, TILE_SIZE-4, 'rgba(30,144,255,0.14)');
+      }
+
+      // seed / crop
+      if (t.seed){
+        const crop = CROPS[t.seed];
+        const stage = t.growth; // 0..growTime
+        const max = crop.growTime;
+        // draw simple plant as rectangles growing taller
+        const height = Math.floor((stage/max) * (TILE_SIZE-4)) + 2;
+        const cx = px + TILE_SIZE/2 - 2;
+        const cy = py + TILE_SIZE - height - 2;
+        rect(cx, cy, 4, height, stage >= max ? '#e36' : '#3a3');
+        // if ready, draw spark
+        if (stage >= max) rect(cx-2, cy-2, 8,2, '#ffd');
+      }
+
+      // tile grid lines
+      strokeRect(px,py, TILE_SIZE, TILE_SIZE, 'rgba(0,0,0,0.2)');
     }
-    document.getElementById('closeDon').addEventListener('click', ()=>{donorModal.classList.remove('open'); donorModal.setAttribute('aria-hidden','true');});
-    document.getElementById('donateNow').addEventListener('click', ()=> openDonate(NGOS[0].id));
+  }
 
-    // Confirm (mock)
-    document.getElementById('confirmDon').addEventListener('click', ()=>{
-      const amt = Number(document.getElementById('donAmt').value || 0);
-      const msg = document.getElementById('donMsg').value || '';
-      if(amt < 1){ alert('Please enter an amount'); return; }
-      donorModal.classList.remove('open'); donorModal.setAttribute('aria-hidden','true');
-      // mock success snackbar
-      showToast('Thank you! Donation of ₹' + amt + ' recorded.');
-    });
+  // player
+  rect(player.x*TILE_SIZE+3, player.y*TILE_SIZE+3, TILE_SIZE-6, TILE_SIZE-6, '#fdd');
+  // eyes
+  rect(player.x*TILE_SIZE+6, player.y*TILE_SIZE+6, 2,2, '#000');
+  rect(player.x*TILE_SIZE+10, player.y*TILE_SIZE+6, 2,2, '#000');
 
-    // Simple toast
-    function showToast(text){
-      const el = document.createElement('div');
-      el.style.position='fixed';el.style.right='18px';el.style.bottom='18px';el.style.background='linear-gradient(90deg,var(--accent2),var(--accent1))';el.style.color='#04263b';el.style.padding='10px 14px';el.style.borderRadius='12px';el.style.fontWeight='700';el.style.boxShadow='0 8px 30px rgba(2,6,23,0.6)';el.textContent=text;
-      document.body.appendChild(el);
-      setTimeout(()=>{ el.style.transition='opacity .6s'; el.style.opacity='0'; setTimeout(()=>el.remove(),700); },2800);
-    }
+  // HUD text in canvas
+  ctx.fillStyle = '#000';
+  ctx.font = '8px monospace';
+  ctx.fillText('Retro Farm', 6, 10);
 
-    // Profile modal (basic)
-    function openProfile(id){
-      const ngo = NGOS.find(x=>x.id===id);
-      alert(ngo.name + '\n\n' + ngo.desc + '\n\nLocation: ' + ngo.location + '\nImpact: ' + ngo.impact + '%');
-    }
+  // update DOM UI
+  dayEl.textContent = day;
+  moneyEl.textContent = money;
+  harvestedEl.textContent = harvested;
+  seedsEl.textContent = seeds;
+}
 
-    // Small accessibility: keyboard close on Esc
-    window.addEventListener('keydown', e=>{ if(e.key==='Escape'){ donorModal.classList.remove('open'); donorModal.setAttribute('aria-hidden','true'); } });
+function rect(x,y,w,h,color){
+  ctx.fillStyle = color;
+  ctx.fillRect(x,y,w,h);
+}
+function strokeRect(x,y,w,h,color){
+  ctx.strokeStyle = color;
+  ctx.strokeRect(x+0.5,y+0.5,w-1,h-1);
+}
 
-    // Onboarding CTA
-    document.getElementById('getStarted').addEventListener('click', ()=>{
-      // simple sign-up flow: open volunteer modal as entry
-      document.getElementById('volunteer').click();
-    });
+// Main loop
+let last = performance.now();
+function loop(now){
+  const dt = now-last;
+  if (dt > 100) { // tick every ~100ms
+    for (let i=0;i<Math.floor(dt/100);i++) gameTick();
+    last = now;
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 
-    document.getElementById('volunteer').addEventListener('click', ()=>{
-      const name = prompt('Quick Volunteer Sign-up — name?');
-      if(name) showToast('Thanks ' + name + '! We sent next steps to your email (demo).');
-    });
+// Small autoplay planting helper to make demo lively
+setInterval(()=>{
+  if (paused) return;
+  // occasionally add seeds to keep playing
+  if (Math.random() < 0.05) seeds++;
+}, 3000);
 
-  </script>
+// Prevent arrow keys scrolling
+window.addEventListener('keydown', function(e){ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault(); });
+
+</script>
 </body>
 </html>
